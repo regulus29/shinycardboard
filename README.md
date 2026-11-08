@@ -12,4 +12,12 @@ A personal, game-focused collection and deck-building app for the Riftbound trad
 
 ### Status
 
-Planning and data spike. See `docs/` for specs once written.
+Planning and data spike. See `docs/` for specs and findings.
+
+### Data spike
+
+Run the Riftcodex coverage report with Python 3 (standard library only):
+
+    python -I scripts/riftcodex_spike.py
+
+The pull is cached in `data/raw/` (gitignored). Add `--refresh` to refetch. Results are summarized in `docs/data-spike-findings.md`.
