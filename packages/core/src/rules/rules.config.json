@@ -1,0 +1,15 @@
+{
+  "version": "2025-06-02 core rules plus community sources",
+  "verified": false,
+  "notes": "Sideboard size and copy limit conflict across sources. Confirm against the current official Core Rules before relying on them.",
+  "mainDeckSize": 40,
+  "includesChosenChampion": true,
+  "copyLimit": 3,
+  "copyLimitAppliesAcrossSideboard": true,
+  "runeDeckSize": 12,
+  "battlefieldCount": 3,
+  "battlefieldCopyLimit": 1,
+  "sideboardSizes": [0, 8],
+  "colorlessAlwaysLegal": true,
+  "signatureRequiresMatchingLegend": true
+}
