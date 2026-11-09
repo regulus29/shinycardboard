@@ -32,8 +32,9 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run typecheck
-      - run: npm test
+      # Some web tests read the real catalog, so build it before testing
       - run: npm run build:catalog
+      - run: npm test
       - run: npm run build
       # Pages serves 404.html for unknown paths, so deep links reach the single page app
       - run: cp apps/web/dist/index.html apps/web/dist/404.html
