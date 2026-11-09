@@ -528,7 +528,8 @@
     min-height: 2.75rem;
   }
 
+  /* Wrapper is 44px; the input fills it minus the 1px borders so the whole bar is a 44px target. */
   .ui-search__input {
-    min-height: 2.5rem;
+    min-height: calc(2.75rem - 2px);
   }
 }

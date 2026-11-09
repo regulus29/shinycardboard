@@ -2,11 +2,21 @@
  * Design tokens. Dark is the default theme; [data-theme="light"] overrides it.
  * Components must use these variables and never raw colors or pixel values.
  */
+/* Bundled variable UI face (Sora, SIL OFL 1.1, see src/assets/fonts/OFL-Sora.txt). */
+@font-face {
+  font-family: 'Sora Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 800;
+  src: url('../assets/fonts/sora-latin-wght-normal.woff2') format('woff2-variations');
+}
+
 :root {
   color-scheme: dark;
 
   /* Typography */
-  --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-sans: 'Sora Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-display: var(--font-sans);
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --text-2xs: 0.6875rem;
   --text-xs: 0.75rem;

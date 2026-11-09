@@ -1,6 +1,7 @@
 import type { IncomingMessage, RequestListener, ServerResponse } from 'node:http';
 import { isAuthorized } from './auth';
 import type { ServerConfig } from './config';
+import { StateLimitError } from './limits';
 import {
   HttpError,
   PREFLIGHT_HEADERS,
@@ -9,6 +10,7 @@ import {
   parseJsonBody,
   readBody,
   sendJson,
+  stateLimitHttpError,
 } from './http';
 import type { Logger, RequestLog } from './logger';
 import type { SyncService } from './service';
@@ -84,12 +86,13 @@ async function dispatch(req: IncomingMessage, pathname: string, deps: HandlerDep
 }
 
 function toOutcome(error: unknown): Outcome & { errorCode: string } {
-  if (error instanceof HttpError) {
+  const httpError = error instanceof StateLimitError ? stateLimitHttpError(error) : error;
+  if (httpError instanceof HttpError) {
     return {
-      status: error.status,
-      body: { error: { code: error.code, message: error.message } },
-      headers: error.headers,
-      errorCode: error.code,
+      status: httpError.status,
+      body: httpError.body,
+      headers: httpError.headers,
+      errorCode: httpError.code,
     };
   }
   // Anything else is a bug or an I/O failure: tell the client nothing specific.

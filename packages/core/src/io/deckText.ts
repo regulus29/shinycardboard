@@ -17,7 +17,10 @@ const SECTION_ORDER: readonly DeckSection[] = ['legend', 'champion', 'main', 'ru
 
 type SlotSection = 'main' | 'runes' | 'battlefields' | 'sideboard';
 
-/** What a dedicated section accepts. Cards that do not qualify are reported, not placed. */
+/**
+ * What a dedicated section accepts. Cards that do not qualify are reported, not placed.
+ * A chosen champion must be a Champion-supertype Unit; a plain Unit cannot start in the champion zone.
+ */
 const SECTION_RULES: Partial<Record<DeckSection, { accepts: (card: Card) => boolean; rejection: string }>> = {
   legend: { accepts: (card) => card.type === 'Legend', rejection: 'not a Legend' },
   champion: { accepts: (card) => card.type === 'Unit' && card.supertype === 'Champion', rejection: 'not a Champion unit' },
@@ -66,9 +69,9 @@ type LineKind =
 
 const SIDEBOARD_PREFIX = /^sb\s*:\s*/i;
 const TRAILING_COUNT = /\(\s*\d+\s*\)|:\s*\d*\s*$/g;
-const QUANTITY_FIRST = /^(\d+)\s*[x×]?\s+(.+)$/i;
-const MARKED_QUANTITY_FIRST = /^[x×](\d+)\s+(.+)$/i;
-const QUANTITY_LAST = /^(.+?)\s+[x×]\s*(\d+)$/i;
+const QUANTITY_FIRST = /^(\d+)\s*[x\u00d7]?\s+(.+)$/i;
+const MARKED_QUANTITY_FIRST = /^[x\u00d7](\d+)\s+(.+)$/i;
+const QUANTITY_LAST = /^(.+?)\s+[x\u00d7]\s*(\d+)$/i;
 const NEGATIVE_QUANTITY = /^-\d+\s/;
 const TRAILING_COMMENT = /\s\/\/ ?[^]*$/;
 
@@ -86,7 +89,7 @@ function nameDirective(line: string): string | undefined {
 const stripBrackets = (line: string): string => line.replace(/\[[^\]]*\]/g, ' ').replace(/\s+/g, ' ').trim();
 
 function classifyLine(rawLine: string): LineKind {
-  const line = rawLine.replace(/^﻿/, '').trim();
+  const line = rawLine.replace(/^\ufeff/, '').trim();
   if (line === '') return { kind: 'skip' };
   const heading = headingOf(line);
   if (heading) return { kind: 'heading', section: heading };

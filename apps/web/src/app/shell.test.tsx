@@ -9,7 +9,7 @@ import { SyncProvider } from '../sync/SyncProvider';
 import { ToastProvider } from '../ui';
 import { AppRoutes } from './AppRoutes';
 import { AppShell } from './AppShell';
-import { OMNIBOX_INPUT_ID } from '../config/constants';
+import { OMNIBOX_INPUT_ID, STORAGE_KEYS } from '../config/constants';
 import { saveDeck, saveSearch } from '../data';
 import { resetDb } from '../test/helpers';
 import { resetSettingsCache } from '../settings/settingsStore';
@@ -82,14 +82,15 @@ describe('app shell', () => {
 
     // Typing a slash inside the omnibox itself must insert it, not re-trigger the shortcut.
     await userEvent.keyboard('a/b');
-    expect(screen.getByRole('searchbox', { name: 'Search cards' })).toHaveValue('a/b');
+    expect(screen.getByRole('combobox', { name: 'Search cards' })).toHaveValue('a/b');
   });
 
   it('submits the omnibox to /collection?q=', async () => {
     renderApp('/settings');
     await screen.findByRole('heading', { level: 1, name: 'Settings' });
-    await userEvent.type(screen.getByRole('searchbox', { name: 'Search cards' }), 'fury unit{Enter}');
-    expect(await screen.findByText(/Search results for "fury unit"/)).toBeInTheDocument();
+    await userEvent.type(screen.getByRole('combobox', { name: 'Search cards' }), 'fury unit{Enter}');
+    expect(await screen.findByRole('heading', { level: 1, name: 'Collection' })).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: 'Search cards' })).toHaveValue('fury unit');
   });
 
   it('fills the sidebar slots from saved searches and recent decks', async () => {
@@ -104,7 +105,7 @@ describe('app shell', () => {
     renderApp('/settings');
     await userEvent.click(await screen.findByRole('button', { name: 'Toggle sidebar' }));
     expect(screen.getByRole('button', { name: 'Toggle sidebar' })).toHaveAttribute('aria-expanded', 'false');
-    expect(JSON.parse(localStorage.getItem('sc.settings.v1')!).sidebarCollapsed).toBe(true);
+    expect(JSON.parse(localStorage.getItem(STORAGE_KEYS.settings)!).sidebarCollapsed).toBe(true);
   });
 });
 

@@ -1,6 +1,8 @@
-import { mkdir, open, readFile, readdir, rename, rm, writeFile } from 'node:fs/promises';
+import { randomUUID } from 'node:crypto';
+import { link as hardLink, mkdir, open, readFile, readdir, rename, rm, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { SYNC_COLLECTIONS, emptyServerState, validateSyncRecord, type ServerState } from '@sc/core';
+import { CONFIG_DEFAULTS } from './config';
 
 export interface StateStore {
   /** Take any needed lock and read the persisted state. */
@@ -13,8 +15,26 @@ export interface StateStore {
 export const STATE_FILE_NAME = 'state.json';
 export const LOCK_FILE_NAME = 'server.lock';
 const TEMP_SUFFIX = '.tmp';
+/** Hard link errors meaning links are unavailable here, so the lock falls back to exclusive create. */
+const LINK_UNSUPPORTED_CODES = new Set(['EPERM', 'ENOSYS', 'EXDEV']);
+
+export type LinkFn = (existing: string, created: string) => Promise<void>;
+
+export interface FileStoreOptions {
+  lockGraceMs?: number;
+  /** Replaceable so tests can simulate filesystems without hard links. */
+  link?: LinkFn;
+}
 
 export class StoreLockedError extends Error {}
+
+const errorCode = (error: unknown): string | undefined => (error as NodeJS.ErrnoException).code;
+
+/** A lock file's pid, or undefined when the text is empty or not a positive integer. */
+function parsePid(text: string): number | undefined {
+  const pid = Number(text.trim());
+  return Number.isInteger(pid) && pid > 0 ? pid : undefined;
+}
 
 /** Parse and verify persisted state. Throws rather than returning something half valid. */
 function parseState(text: string, file: string): ServerState {
@@ -57,12 +77,20 @@ function processIsAlive(pid: number): boolean {
 export class FileStateStore implements StateStore {
   private readonly file: string;
   private readonly lockFile: string;
+  private readonly lockGraceMs: number;
+  private readonly link: LinkFn;
+  private linkSupported = true;
   private writes = 0;
   private locked = false;
 
-  constructor(private readonly dataDir: string) {
+  constructor(
+    private readonly dataDir: string,
+    options: FileStoreOptions = {},
+  ) {
     this.file = path.join(dataDir, STATE_FILE_NAME);
     this.lockFile = path.join(dataDir, LOCK_FILE_NAME);
+    this.lockGraceMs = options.lockGraceMs ?? CONFIG_DEFAULTS.lockGraceMs;
+    this.link = options.link ?? hardLink;
   }
 
   async load(): Promise<ServerState> {
@@ -88,21 +116,81 @@ export class FileStateStore implements StateStore {
 
   /** Refuse to share a data directory with a live process; take over a lock left by a dead one. */
   private async acquireLock(): Promise<void> {
-    for (let attempt = 0; attempt < 2; attempt++) {
-      try {
-        await writeFile(this.lockFile, String(process.pid), { flag: 'wx' });
-        this.locked = true;
-        return;
-      } catch (error) {
-        if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error;
-        const holder = Number((await readFile(this.lockFile, 'utf8').catch(() => '')).trim());
-        if (Number.isInteger(holder) && holder > 0 && processIsAlive(holder)) {
-          throw new StoreLockedError(`Data directory ${this.dataDir} is in use by process ${holder}`);
-        }
-        await rm(this.lockFile, { force: true });
+    if (!(await this.createLock())) {
+      await this.removeStaleLock();
+      // The retry is the last attempt: if someone else won the race, refuse.
+      if (!(await this.createLock())) {
+        throw new StoreLockedError(`Data directory ${this.dataDir} was taken by another process`);
       }
     }
-    throw new StoreLockedError(`Could not take the lock in ${this.dataDir}`);
+    this.locked = true;
+  }
+
+  /** True when this process created the lock file, false when it already exists. */
+  private async createLock(): Promise<boolean> {
+    if (this.linkSupported) {
+      try {
+        return await this.linkLock();
+      } catch (error) {
+        if (!LINK_UNSUPPORTED_CODES.has(errorCode(error) ?? '')) throw error;
+        this.linkSupported = false;
+      }
+    }
+    return this.exclusiveCreateLock();
+  }
+
+  /** The pid is fully written to a private temp file before the lock name appears, so no reader sees it empty. */
+  private async linkLock(): Promise<boolean> {
+    const temp = path.join(this.dataDir, `${LOCK_FILE_NAME}.${randomUUID()}${TEMP_SUFFIX}`);
+    await writeFile(temp, String(process.pid), { flag: 'wx' });
+    try {
+      await this.link(temp, this.lockFile);
+      return true;
+    } catch (error) {
+      if (errorCode(error) === 'EEXIST') return false;
+      throw error;
+    } finally {
+      await rm(temp, { force: true });
+    }
+  }
+
+  /** Fallback without hard links. The file can be briefly empty, which the grace period covers. */
+  private async exclusiveCreateLock(): Promise<boolean> {
+    try {
+      await writeFile(this.lockFile, String(process.pid), { flag: 'wx' });
+      return true;
+    } catch (error) {
+      if (errorCode(error) === 'EEXIST') return false;
+      throw error;
+    }
+  }
+
+  /** Throws if the lock belongs to a live process or is a fresh unreadable file. Otherwise removes that exact file. */
+  private async removeStaleLock(): Promise<void> {
+    const seen = await this.readLockSnapshot();
+    if (!seen) return;
+    const holder = parsePid(seen.text);
+    if (holder === undefined) {
+      if (Date.now() - seen.mtimeMs < this.lockGraceMs) {
+        throw new StoreLockedError(`Data directory ${this.dataDir} is being locked by another process`);
+      }
+    } else if (processIsAlive(holder)) {
+      throw new StoreLockedError(`Data directory ${this.dataDir} is in use by process ${holder}`);
+    }
+    // Remove only the file judged stale, so a lock created in the meantime survives.
+    const current = await this.readLockSnapshot();
+    if (current?.text === seen.text && current.mtimeMs === seen.mtimeMs) {
+      await rm(this.lockFile, { force: true });
+    }
+  }
+
+  private async readLockSnapshot(): Promise<{ text: string; mtimeMs: number } | undefined> {
+    try {
+      const [text, info] = await Promise.all([readFile(this.lockFile, 'utf8'), stat(this.lockFile)]);
+      return { text, mtimeMs: info.mtimeMs };
+    } catch {
+      return undefined;
+    }
   }
 
   /** Delete temp files left by a crash mid-write. */

@@ -86,7 +86,7 @@ export function Sidebar({ collapsed, forced = false, onToggle }: SidebarProps) {
             key={item.to}
             to={item.to}
             data-label={item.label}
-            title={collapsed ? item.label : undefined}
+            aria-label={collapsed ? item.label : undefined}
             className={({ isActive }) => cx('sidebar__link', 'sidebar__link--primary', isActive && 'is-active')}
           >
             <Icon name={item.icon} />

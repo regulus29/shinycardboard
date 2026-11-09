@@ -2,7 +2,7 @@ import { createServer as createHttpServer, type Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import type { ServerConfig } from './config';
 import { createHandler } from './handler';
-import { jsonLineLogger, type Logger } from './logger';
+import { jsonEventLogger, jsonLineLogger, type EventLogger, type Logger } from './logger';
 import { SyncService } from './service';
 import { FileStateStore, type StateStore } from './store';
 
@@ -10,6 +10,8 @@ export interface AppOptions {
   /** Defaults to a file store in `config.dataDir`. */
   store?: StateStore;
   logger?: Logger;
+  /** Receives lifecycle events. Defaults to JSON lines on stdout. */
+  events?: EventLogger;
   clock?: () => number;
 }
 
@@ -21,18 +23,23 @@ const cleanups = new WeakMap<Server, () => Promise<void>>();
  * Takes a lock on the data directory, released by `closeServer`.
  */
 export async function createServer(config: ServerConfig, options: AppOptions = {}): Promise<Server> {
-  const store = options.store ?? new FileStateStore(config.dataDir);
+  const store = options.store ?? new FileStateStore(config.dataDir, { lockGraceMs: config.lockGraceMs });
   let service: SyncService;
   try {
     service = await SyncService.open({
       store,
       tombstoneRetentionMs: config.tombstoneRetentionMs,
       maxClockSkewMs: config.maxClockSkewMs,
+      limits: { maxRecordsPerCollection: config.maxRecordsPerCollection, maxStateBytes: config.maxStateBytes },
+      regenerateServerId: config.regenerateServerId,
       clock: options.clock,
     });
   } catch (error) {
     await store.close?.();
     throw error;
+  }
+  if (config.regenerateServerId) {
+    (options.events ?? jsonEventLogger)({ time: new Date().toISOString(), event: 'server_id_regenerated', serverId: service.serverId });
   }
   const handler = createHandler({ config, service, logger: options.logger ?? jsonLineLogger });
   const server = createHttpServer(handler);

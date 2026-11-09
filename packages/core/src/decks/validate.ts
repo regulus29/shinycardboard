@@ -45,8 +45,11 @@ function issue(rules: RulesConfig, code: DeckIssueCode, message: string, cardKey
   return cardKey === undefined ? base : { ...base, cardKey };
 }
 
+/** Counts a noun, pluralizing a trailing consonant plus y as "ies" (copy -> copies). */
 function plural(n: number, noun: string): string {
-  return `${n} ${noun}${n === 1 ? '' : 's'}`;
+  if (n === 1) return `${n} ${noun}`;
+  const word = /[^aeiou]y$/.test(noun) ? `${noun.slice(0, -1)}ies` : `${noun}s`;
+  return `${n} ${word}`;
 }
 
 /** Wording for a required size: exact, or at least. */

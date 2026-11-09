@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { MS_PER_DAY, type SyncResponse } from '@sc/core';
 import { createServer } from './app';
 import { FileStateStore, LOCK_FILE_NAME, STATE_FILE_NAME, StoreLockedError } from './store';
-import { Device, entry, post, useHarness } from './testkit';
+import { TOKEN, Device, entry, post, useHarness } from './testkit';
 
 const { start, stop, dataDir, baseConfig } = useHarness();
 
@@ -120,6 +120,25 @@ describe('hostile input', () => {
     const response = await post(base, { since: 0, changes: { owned: [entry('a', 1, { quantity: 1e9 })] } });
     expect(response.status).toBe(400);
     expect(((await response.json()) as { error: { message: string } }).error.message).toMatch(/quantity/);
+  });
+});
+
+describe('restore', () => {
+  it('issues a fresh serverId once when regeneration is requested, and keeps it on later starts', async () => {
+    const first = await start();
+    const { serverId: original } = await health(first.base);
+    await stop(first);
+
+    const restarted = await start({ regenerateServerId: true });
+    const { serverId: fresh } = await health(restarted.base);
+    expect(fresh).not.toBe(original);
+    expect(restarted.events).toEqual([expect.objectContaining({ event: 'server_id_regenerated', serverId: fresh })]);
+    expect(JSON.stringify(restarted.events)).not.toContain(TOKEN);
+    await stop(restarted);
+
+    const later = await start();
+    expect((await health(later.base)).serverId).toBe(fresh);
+    expect(later.events).toEqual([]);
   });
 });
 

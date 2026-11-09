@@ -37,3 +37,5 @@ export { readUserData, restoreBackup } from './backup';
 export { CatalogProvider, CatalogGate, useCatalog, useRequiredCatalog, type CatalogState } from './catalog';
 export { migrateRetiredKeys, resolvePrintingKey, type MigrationResult } from './catalogMigration';
 export { useSearchContext, buildSearchContext } from './searchContext';
+export { applyImport, countReplaceRemovals, type ImportMode, type ImportOutcome } from './importEntries';
+export { setCardNote } from './cardNote';

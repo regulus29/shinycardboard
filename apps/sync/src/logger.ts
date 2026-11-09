@@ -25,3 +25,16 @@ export const jsonLineLogger: Logger = (entry) => {
 };
 
 export const silentLogger: Logger = () => undefined;
+
+/** Lifecycle events such as a regenerated server id. Never carries tokens or record contents. */
+export interface ServerEvent {
+  time: string;
+  event: string;
+  serverId?: string;
+}
+
+export type EventLogger = (event: ServerEvent) => void;
+
+export const jsonEventLogger: EventLogger = (event) => {
+  process.stdout.write(`${JSON.stringify(event)}\n`);
+};

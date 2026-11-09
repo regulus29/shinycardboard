@@ -1,15 +1,27 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
+import { StateLimitError } from './limits';
 
 /** An error that maps to a specific HTTP response. Messages are safe to show clients. */
 export class HttpError extends Error {
+  /** Response body. Defaults to the standard `{error:{code,message}}` shape. */
+  readonly body: unknown;
+
   constructor(
     readonly status: number,
     readonly code: string,
     message: string,
     readonly headers: Record<string, string> = {},
+    body?: unknown,
   ) {
     super(message);
+    this.body = body ?? { error: { code, message } };
   }
+}
+
+/** A state cap violation answers 413 with its own flat body shape. */
+export function stateLimitHttpError(error: StateLimitError): HttpError {
+  const body = { error: 'state_limit', message: error.message };
+  return new HttpError(STATUS.payloadTooLarge, 'state_limit', error.message, {}, body);
 }
 
 export const STATUS = {

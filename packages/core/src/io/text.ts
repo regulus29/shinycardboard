@@ -2,9 +2,9 @@
 export function normalizeText(value: string): string {
   return value
     .normalize('NFKD')
-    .replace(/[̀-ͯ]/g, '')
+    .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase()
-    .replace(/['’‘`]/g, '')
+    .replace(/['\u2019\u2018`]/g, '')
     .replace(/[^a-z0-9]+/g, ' ')
     .trim();
 }

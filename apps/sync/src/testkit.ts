@@ -6,7 +6,7 @@ import { afterEach, beforeEach, expect } from 'vitest';
 import { MS_PER_DAY, mergeRecords, type SyncRecord, type SyncRequest, type SyncResponse } from '@sc/core';
 import { closeServer, createServer, listen } from './app';
 import { CONFIG_DEFAULTS, type ServerConfig } from './config';
-import type { RequestLog } from './logger';
+import type { RequestLog, ServerEvent } from './logger';
 
 /** Test support: starts real servers on ephemeral ports with a temporary data directory. */
 
@@ -16,6 +16,7 @@ export interface Running {
   server: Server;
   base: string;
   logs: RequestLog[];
+  events: ServerEvent[];
 }
 
 export interface Harness {
@@ -50,6 +51,10 @@ export function useHarness(): Harness {
     requestTimeoutMs: 10_000,
     maxClockSkewMs: CONFIG_DEFAULTS.maxClockSkewMs,
     shutdownTimeoutMs: 1000,
+    maxRecordsPerCollection: CONFIG_DEFAULTS.maxRecordsPerCollection,
+    maxStateBytes: CONFIG_DEFAULTS.maxStateBytes,
+    regenerateServerId: CONFIG_DEFAULTS.regenerateServerId,
+    lockGraceMs: CONFIG_DEFAULTS.lockGraceMs,
     ...overrides,
   });
 
@@ -59,9 +64,14 @@ export function useHarness(): Harness {
     async start(overrides = {}, clock) {
       const config = baseConfig(overrides);
       const logs: RequestLog[] = [];
-      const server = await createServer(config, { logger: (entry) => logs.push(entry), clock });
+      const events: ServerEvent[] = [];
+      const server = await createServer(config, {
+        logger: (entry) => logs.push(entry),
+        events: (event) => events.push(event),
+        clock,
+      });
       const port = await listen(server, 0, config.host);
-      const instance = { server, base: `http://127.0.0.1:${port}`, logs };
+      const instance = { server, base: `http://127.0.0.1:${port}`, logs, events };
       running.push(instance);
       return instance;
     },

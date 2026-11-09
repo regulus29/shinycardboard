@@ -39,6 +39,20 @@ describe('mid-session database failure', () => {
     await vi.waitFor(() => expect(result.current.failure).toBe('read'));
     expect(result.current.owned).toBeUndefined();
   });
+
+  it('shows the Storage unavailable screen when the connection closes mid-session, and recovers on retry', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    render(
+      <StorageGate>
+        <p>app</p>
+      </StorageGate>,
+    );
+    expect(await screen.findByText('app')).toBeInTheDocument();
+    act(() => db.close());
+    expect(await screen.findByRole('heading', { name: 'Storage unavailable' })).toBeInTheDocument();
+    await act(async () => screen.getByRole('button', { name: 'Try again' }).click());
+    expect(await screen.findByText('app')).toBeInTheDocument();
+  });
 });
 
 describe('DataLossNotice', () => {

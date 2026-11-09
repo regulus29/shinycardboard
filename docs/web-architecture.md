@@ -135,3 +135,28 @@ Semantic landmarks (`header`, `nav`, `main`, `aside`), a skip link, visible focu
 - Core is implemented but still evolving: prefer injecting dependencies, and use `lwwMerge` and the in-memory `createFakeSyncServer()` from `test/helpers.ts` instead of relying on core internals.
 - Wrap page tests with `ToastProvider`, `CatalogProvider load={async () => fixture}`, `MemoryRouter` and `SyncProvider autoStart={false}`; see `app/shell.test.tsx` for a full example.
 - `localStorage` is an in-memory shim installed in `test/setup.ts` because recent Node versions ship a conflicting global.
+
+## Deck features
+
+All deck UI lives in `features/decks` (pages are `DecksPage.tsx` and `DeckBuilderPage.tsx`, styles in `decks.css` with the `dk-` prefix). Game limits are never coded here: they come from core `defaultRules` (rules.config.json), constants for this feature are in `constants.ts`.
+
+- Pure modules, each with tests: `deckModel.ts` (slot math, copy and signature limit checks with reasons, grouping by type, legend change impact), `poolModel.ts` (legal cards for the section, core `runSearch` on top, owned scope, filters), `insightsModel.ts` (curve bars, validity, shopping lists, rule provenance), `assistModel.ts` (validation issue fixes, applying fill suggestions), `importModel.ts` (import preview over `parseDeckText`), `listModel.ts` (deck summaries, sorting, legend options), `autosave.ts` (debounced, serialized save with flush, framework free).
+- Draft and autosave: `useDeckDraft` keeps a local draft of the stored deck, saves through `saveDeck` after a short pause and flushes on unmount, tab hide and page unload. A newer copy from sync replaces the draft only when nothing is pending. `saveDeck` ignores undefined fields, so a cleared legend, champion or note is stored as an empty string and `deckPatch.ts` maps it back to undefined.
+- Builder state is shared through `builderContext.tsx` (`useBuilder`): the draft, edit function, legal cards, ownership counts and the memoized validation, stats, completion, missing and conflict results. Panels read from it and never call core on their own, except the assistants, which compute suggestions on a deferred copy of the deck.
+- Layout: three panes (pool, deck, insights) from `BUILDER_PANES_MIN_REM` upward, tabs with a pinned summary bar below that. The active deck section drives which cards the pool offers.
+- A deck with no legend is allowed (the pool then offers every non signature card); the legend picker is always one click away.
+- Test helpers: `testCatalog.ts` builds a small catalog with two legends, champions, a signature spell, runes and battlefields. Page tests mount the real pages with the real core and fake IndexedDB; autosave assertions use `waitFor` with the debounce in mind.
+- Known limits: sideboard size is only a warning in core (unverified rule), so the pool does not cap it; the printing pin applies to every copy of a card in a section; draw statistics are not implemented.
+
+## Collection features
+
+Code lives in `features/collection`, `features/cards`, `features/search` and `app/OmniboxSlot.tsx` (a thin wrapper over `features/search/Omnibox`).
+
+- URL state: `?q` (query), `scope` (all, owned, missing), `sort`, `dir`, `group`, `view`. Defaults are omitted. `collection/params.ts` reads and writes them; card links carry the same context (`listContextSearch`) so the detail page can recompute the list for previous and next.
+- Omnibox: input keeps `OMNIBOX_INPUT_ID` and is an ARIA combobox. Typing commits to the URL after `SUGGESTION_DEBOUNCE_MS` (replace on the collection), Enter commits at once, Esc clears. Suggestions come from core `suggestTokens`; parse warnings from `runSearch`. Syntax help and saved search management are popovers on desktop and dialogs from the suggestion panel on phones.
+- Filter chips never hold state: `queryEdit.ts` reads field values from the query text and rewrites it, so chips and omnibox cannot disagree.
+- Results: `useCollectionResults` (search, scope filter, grouping) feeds `ResultsList`, a hand written virtual list over the shell scroll container (`#main`). `windowing.ts` holds the pure math (columns, prefix offsets, visible range). Grid row height is measured from rendered rows; scroll position is saved per history entry in sessionStorage (`listState.ts`).
+- Owned edits: tile and table steppers use `changeOwnedTotal` (adds normal NM, removes from the main row). Card detail edits exact finish and condition rows through `setOwnedQuantity`.
+- Import: `importPreview.ts` (pure) wraps `parseCollectionCsv`; `data/importEntries.ts` `applyImport` merges with core `mergeImportedEntries` in one transaction, assigns deterministic ids, writes only changed rows and tombstones. JSON backups are restored from Settings.
+- Card notes use `data/cardNote.ts` `setCardNote` (no other mutation wrote the tagging note).
+- Tests: pure logic in `collection/logic.test.ts`; UI flows in `CollectionPage.test.tsx`, `CardDetailPage.test.tsx`, `Omnibox.test.tsx`; shared fixtures and `mockViewport` in `collection/testFixture.tsx`.

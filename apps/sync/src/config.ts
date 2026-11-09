@@ -1,4 +1,4 @@
-import { MS_PER_DAY, SYNC_CONFIG } from '@sc/core';
+import { MS_PER_DAY, RECORD_LIMITS, SYNC_CONFIG } from '@sc/core';
 
 export interface ServerConfig {
   port: number;
@@ -15,6 +15,14 @@ export interface ServerConfig {
   maxClockSkewMs: number;
   /** Hard limit on graceful shutdown before the process exits anyway. */
   shutdownTimeoutMs: number;
+  /** Most records one collection may hold after a sync. */
+  maxRecordsPerCollection: number;
+  /** Largest serialized state the server will store. */
+  maxStateBytes: number;
+  /** Issue a fresh serverId at startup so every client resyncs (use after restoring a backup). */
+  regenerateServerId: boolean;
+  /** An empty or unreadable lock file younger than this counts as held (fallback lock mode only). */
+  lockGraceMs: number;
 }
 
 export class ConfigError extends Error {}
@@ -28,6 +36,10 @@ export const CONFIG_DEFAULTS = {
   requestTimeoutMs: 30_000,
   maxClockSkewMs: SYNC_CONFIG.defaultMaxClockSkewMs,
   shutdownTimeoutMs: 10_000,
+  maxRecordsPerCollection: RECORD_LIMITS.maxRecordsPerCollection,
+  maxStateBytes: 64 * 1024 * 1024,
+  regenerateServerId: false,
+  lockGraceMs: 2000,
   /** Short tokens are guessable, so the server refuses them. */
   minTokenLength: 16,
   maxPort: 65_535,
@@ -43,6 +55,15 @@ function integerFrom(env: Env, name: string, fallback: number, min: number, max 
     throw new ConfigError(`${name} must be a whole number between ${min} and ${max}`);
   }
   return value;
+}
+
+/** Accepts only 1 or 0, so a typo cannot silently change behaviour. */
+function flagFrom(env: Env, name: string, fallback: boolean): boolean {
+  const raw = env[name]?.trim();
+  if (raw === undefined || raw === '') return fallback;
+  if (raw === '1') return true;
+  if (raw === '0') return false;
+  throw new ConfigError(`${name} must be 1 or 0`);
 }
 
 function tokenFrom(env: Env): string {
@@ -76,5 +97,9 @@ export function loadConfig(env: Env = process.env): ServerConfig {
     requestTimeoutMs: integerFrom(env, 'SYNC_REQUEST_TIMEOUT_MS', CONFIG_DEFAULTS.requestTimeoutMs, 1),
     maxClockSkewMs: integerFrom(env, 'SYNC_MAX_CLOCK_SKEW_MS', CONFIG_DEFAULTS.maxClockSkewMs, 0),
     shutdownTimeoutMs: integerFrom(env, 'SYNC_SHUTDOWN_TIMEOUT_MS', CONFIG_DEFAULTS.shutdownTimeoutMs, 1),
+    maxRecordsPerCollection: integerFrom(env, 'SYNC_MAX_RECORDS_PER_COLLECTION', CONFIG_DEFAULTS.maxRecordsPerCollection, 1),
+    maxStateBytes: integerFrom(env, 'SYNC_MAX_STATE_BYTES', CONFIG_DEFAULTS.maxStateBytes, 1),
+    regenerateServerId: flagFrom(env, 'SYNC_REGENERATE_SERVER_ID', CONFIG_DEFAULTS.regenerateServerId),
+    lockGraceMs: integerFrom(env, 'SYNC_LOCK_GRACE_MS', CONFIG_DEFAULTS.lockGraceMs, 0),
   };
 }
