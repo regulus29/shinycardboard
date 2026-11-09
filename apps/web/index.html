@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="%SC_THEME_DARK%" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Shiny Cardboard" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="description" content="Your Riftbound collection and decks, offline-ready." />
+    <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <title>Shiny Cardboard</title>
+    <!-- Apply the saved theme before first paint to avoid a flash. Key mirrors STORAGE_KEYS.settings. -->
+    <script>
+      (function () {
+        var root = document.documentElement;
+        try {
+          var saved = JSON.parse(localStorage.getItem('%SC_SETTINGS_KEY%') || '{}');
+          var theme = saved.theme || 'dark';
+          if (theme === 'system') theme = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+          root.dataset.theme = theme === 'light' ? 'light' : 'dark';
+          if (saved.density === 'compact') root.dataset.density = 'compact';
+          if (root.dataset.theme === 'light') document.querySelector('meta[name="theme-color"]').content = '%SC_THEME_LIGHT%';
+        } catch (e) {
+          root.dataset.theme = 'dark';
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <noscript>Shiny Cardboard needs JavaScript to run.</noscript>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

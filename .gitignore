@@ -3,5 +3,9 @@ dist/
 .env
 .env.*
 data/raw/
+data/sync/
 *.log
 .DS_Store
+apps/web/public/catalog.json
+*.tsbuildinfo
+*.tmp
