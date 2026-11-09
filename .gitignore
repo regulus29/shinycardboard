@@ -8,3 +8,4 @@ data/sync/
 .DS_Store
 apps/web/public/catalog.json
 *.tsbuildinfo
+*.tmp

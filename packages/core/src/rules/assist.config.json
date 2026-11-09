@@ -1,0 +1,30 @@
+{
+  "notes": "Heuristics for suggestFill, suggestMissing and buildableLegends. Deck building taste, not game rules, so they live apart from rules.config.json.",
+  "curveBucketCap": 7,
+  "curveTargetShare": { "0": 0.05, "1": 0.12, "2": 0.22, "3": 0.2, "4": 0.16, "5": 0.12, "6": 0.07, "7": 0.06 },
+  "typeTargetShare": { "Unit": 0.55, "Spell": 0.3, "Gear": 0.15 },
+  "weights": {
+    "curveGap": 3,
+    "typeGap": 2,
+    "championTag": 3,
+    "factionTag": 0.4,
+    "signature": 1.5,
+    "chosenChampion": 100,
+    "chosenLine": 6,
+    "acquirePenalty": 0.8
+  },
+  "gapShareLimit": 1,
+  "reasonMinGap": 0.15,
+  "maxReasons": 2,
+  "otherChampionCards": 2,
+  "rarityCost": { "Common": 1, "Uncommon": 2, "Rare": 3, "Epic": 4, "Showcase": 5, "Promo": 5 },
+  "unknownRarityCost": 5,
+  "readiness": {
+    "fill": 0.7,
+    "champion": 0.1,
+    "signature": 0.1,
+    "depth": 0.1,
+    "depthTargetDistinct": 150,
+    "championTargetChoices": 3
+  }
+}

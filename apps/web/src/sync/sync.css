@@ -1,0 +1,77 @@
+.sync-indicator {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--control-h-md);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--bg-raised);
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  white-space: nowrap;
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+
+.sync-indicator:hover {
+  background: var(--bg-overlay);
+  color: var(--text);
+}
+
+.sync-indicator.is-disabled {
+  color: var(--text-faint);
+}
+
+.sync-indicator.is-idle svg {
+  color: var(--success);
+}
+
+.sync-indicator.is-syncing svg {
+  color: var(--accent-text);
+}
+
+.sync-indicator.is-error {
+  border-color: color-mix(in srgb, var(--danger) 50%, transparent);
+  color: var(--danger);
+}
+
+.sync-indicator.is-offline svg {
+  color: var(--warning);
+}
+
+.sync-indicator__spin {
+  animation: ui-spin 1s linear infinite;
+}
+
+.sync-indicator__dot {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+@media (max-width: 47.99rem) {
+  .sync-indicator {
+    width: var(--control-h-md);
+    padding: 0;
+    justify-content: center;
+  }
+
+  .sync-indicator__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+
+  .sync-indicator__dot {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+  }
+}

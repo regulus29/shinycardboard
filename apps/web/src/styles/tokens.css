@@ -1,0 +1,210 @@
+/*
+ * Design tokens. Dark is the default theme; [data-theme="light"] overrides it.
+ * Components must use these variables and never raw colors or pixel values.
+ */
+:root {
+  color-scheme: dark;
+
+  /* Typography */
+  --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --text-2xs: 0.6875rem;
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-base: 0.9375rem;
+  --text-md: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.375rem;
+  --text-2xl: 1.75rem;
+  --text-3xl: 2.25rem;
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --tracking-caps: 0.08em;
+
+  /* Spacing (4px base) */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+
+  /* Density: pages and components multiply control padding by this. */
+  --control-h-sm: 2rem;
+  --control-h-md: 2.5rem;
+  --control-h-lg: 3rem;
+  --row-pad: var(--space-3);
+
+  /* Radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-pill: 999px;
+
+  /* Motion */
+  --dur-fast: 120ms;
+  --dur: 200ms;
+  --dur-slow: 360ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* Layout */
+  --sidebar-w: 15.5rem;
+  --sidebar-w-collapsed: 4.5rem;
+  --topbar-h: 3.5rem;
+  --tabbar-h: 3.75rem;
+  --content-max: 90rem;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+
+  /* Stacking */
+  --z-sticky: 20;
+  --z-popover: 60;
+  --z-overlay: 80;
+  --z-toast: 100;
+
+  /* Surfaces: deep ink */
+  --bg-app: #080a0f;
+  --bg-surface: #0f1219;
+  --bg-raised: #151922;
+  --bg-overlay: #1b2029;
+  --bg-hover: rgb(255 255 255 / 0.055);
+  --bg-active: rgb(255 255 255 / 0.1);
+  --bg-scrim: rgb(3 5 9 / 0.72);
+  --border: rgb(255 255 255 / 0.08);
+  --border-strong: rgb(255 255 255 / 0.17);
+  /* Borders of interactive controls: 3:1 against surfaces (WCAG 1.4.11). */
+  --control-border: #6c768b;
+
+  /* Text */
+  --text: #eceef4;
+  --text-muted: #a3abbc;
+  --text-faint: #99a2b4;
+
+  /* Accent: a restrained foil gold */
+  --accent: #e3b85b;
+  --accent-hover: #efc874;
+  --accent-press: #cfa34a;
+  --accent-soft: rgb(227 184 91 / 0.14);
+  --accent-text: #efc874;
+  --on-accent: #1a1405;
+  --focus-ring: 0 0 0 2px var(--bg-app), 0 0 0 4px var(--accent);
+
+  /* Status */
+  --success: #4cc38a;
+  --success-soft: rgb(76 195 138 / 0.14);
+  --warning: #f0b429;
+  --warning-soft: rgb(240 180 41 / 0.14);
+  --danger: #f2665f;
+  --danger-soft: rgb(242 102 95 / 0.14);
+  --info: #5aa9f0;
+  --info-soft: rgb(90 169 240 / 0.14);
+
+  /* Domains */
+  --domain-fury: #ea5a4f;
+  --domain-calm: #3fbf94;
+  --domain-mind: #4d9bec;
+  --domain-body: #ee8a3c;
+  --domain-chaos: #a96de6;
+  --domain-order: #e8c545;
+  --domain-colorless: #9aa3b5;
+
+  /* Rarity */
+  --rarity-common: #9aa3b5;
+  --rarity-uncommon: #5fbf86;
+  --rarity-rare: #4d9bec;
+  --rarity-epic: #b573ea;
+  --rarity-showcase: #f0c44f;
+  --rarity-promo: #f27aa4;
+
+  /* Elevation */
+  --highlight: rgb(255 255 255 / 0.06);
+  --shadow-1: 0 1px 2px rgb(0 0 0 / 0.4);
+  --shadow-2: 0 6px 18px rgb(0 0 0 / 0.45), 0 1px 3px rgb(0 0 0 / 0.4);
+  --shadow-3: 0 18px 48px rgb(0 0 0 / 0.55), 0 2px 8px rgb(0 0 0 / 0.4);
+  --glow-strength: 38%;
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+  --bg-app: #f4f3ef;
+  --bg-surface: #ffffff;
+  --bg-raised: #faf9f6;
+  --bg-overlay: #ffffff;
+  --bg-hover: rgb(20 24 34 / 0.05);
+  --bg-active: rgb(20 24 34 / 0.09);
+  --bg-scrim: rgb(20 24 34 / 0.45);
+  --border: rgb(20 24 34 / 0.1);
+  --border-strong: rgb(20 24 34 / 0.22);
+  --control-border: #78809a;
+
+  --text: #161a24;
+  --text-muted: #4d566a;
+  --text-faint: #5a6377;
+
+  --accent: #a97813;
+  --accent-hover: #b98520;
+  --accent-press: #bf8d27;
+  --accent-soft: rgb(169 120 19 / 0.13);
+  --accent-text: #7f5509;
+  --on-accent: #1a1405;
+
+  --success: #146c43;
+  --warning: #8a5600;
+  --danger: #b42d27;
+  --info: #1a62b0;
+
+  --domain-fury: #cf3a2f;
+  --domain-calm: #1a9a70;
+  --domain-mind: #2273d1;
+  --domain-body: #cc6a1a;
+  --domain-chaos: #8a45cc;
+  --domain-order: #b08a0e;
+  --domain-colorless: #667085;
+
+  --rarity-common: #667085;
+  --rarity-uncommon: #1f7a47;
+  --rarity-rare: #1c68bf;
+  --rarity-epic: #8a45cc;
+  --rarity-showcase: #856400;
+  --rarity-promo: #b8336a;
+
+  --highlight: rgb(255 255 255 / 0.9);
+  --shadow-1: 0 1px 2px rgb(20 24 34 / 0.1);
+  --shadow-2: 0 6px 18px rgb(20 24 34 / 0.12), 0 1px 3px rgb(20 24 34 / 0.08);
+  --shadow-3: 0 18px 48px rgb(20 24 34 / 0.2), 0 2px 8px rgb(20 24 34 / 0.1);
+  --glow-strength: 28%;
+}
+
+:root[data-density='compact'] {
+  --control-h-sm: 1.75rem;
+  --control-h-md: 2.125rem;
+  --control-h-lg: 2.625rem;
+  --row-pad: var(--space-2);
+}
+
+/* Touch targets: at least 44px (2.75rem) on touch devices and narrow viewports, any density. */
+@media (pointer: coarse), (max-width: 47.99rem) {
+  :root,
+  :root[data-density='compact'] {
+    --control-h-sm: 2.75rem;
+    --control-h-md: 2.75rem;
+    --control-h-lg: 3rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 0ms;
+    --dur: 0ms;
+    --dur-slow: 0ms;
+  }
+}

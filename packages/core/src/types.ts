@@ -62,7 +62,10 @@ export interface Card {
 
 /** One physical printing of a card. Owned copies attach here. */
 export interface Printing {
-  /** Stable key: `${setId}-${paddedNumber}-${variantSlug}` lowercase, for example "unl-029-alternate-art". */
+  /**
+   * Stable key derived from the source id and variant only, never from other records.
+   * Examples: "unl-029-219-standard", "unl-029a-219-alternate-art", "opp-199-221-metal".
+   */
   printingKey: string;
   cardKey: string;
   setId: string;
@@ -87,6 +90,10 @@ export interface Catalog {
   printings: Record<string, Printing>;
   /** Set codes in release order where known. */
   sets: { setId: string; label: string; count: number }[];
+  /** Old printing key to current key, so owned copies saved under a retired key can be migrated. */
+  keyAliases?: Record<string, string>;
+  /** Old card key to current card key, for tags and deck slots saved under a retired card key. */
+  cardKeyAliases?: Record<string, string>;
 }
 
 /** Every user record that syncs. Deletes are tombstones so they propagate. */
@@ -126,6 +133,8 @@ export interface Deck extends SyncRecord {
   name: string;
   /** cardKey of the Champion Legend. */
   legendKey?: string;
+  /** cardKey of the Chosen Champion, a Champion unit in the main deck that starts in the champion zone. */
+  chosenChampionKey?: string;
   /** Main deck including the chosen champion. */
   main: DeckSlot[];
   runes: DeckSlot[];
