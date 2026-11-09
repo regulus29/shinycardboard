@@ -29,6 +29,12 @@ To sync devices, run the sync server somewhere your devices can reach over HTTPS
 SYNC_TOKEN=<a long random secret> npm run sync
 ```
 
+## Hosting on GitHub Pages
+
+A workflow in `.github/workflows/pages.yml` builds the catalog and the app on every push to `main` and publishes it at `https://<user>.github.io/shinycardboard/`. One-time setup: in the repo, open Settings, then Pages, and set Source to GitHub Actions. Then open the URL on your phone and use Add to Home Screen (Android Chrome: Install app).
+
+To build for a subpath by hand, set `SC_BASE=/shinycardboard/` before `npm run build`.
+
 ## Project layout
 
 - `packages/core`: pure TypeScript logic with no UI. Catalog build, search, deck rules and assist tools, import and export, sync merge
