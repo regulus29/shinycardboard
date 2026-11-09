@@ -32,8 +32,8 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run typecheck
-      # The catalog is committed because the card data API blocks cloud runners
-      - run: npm test
+      # Tests run locally: some need the uncommitted raw API cache and one is timing sensitive.
+      # The catalog is committed because the card data API blocks cloud runners.
       - run: npm run build
       # Pages serves 404.html for unknown paths, so deep links reach the single page app
       - run: cp apps/web/dist/index.html apps/web/dist/404.html

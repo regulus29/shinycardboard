@@ -31,7 +31,7 @@ SYNC_TOKEN=<a long random secret> npm run sync
 
 ## Hosting on GitHub Pages
 
-A workflow in `.github/workflows/pages.yml` tests and builds the app on every push to `main` and publishes it at `https://<user>.github.io/shinycardboard/`. One-time setup: in the repo, open Settings, then Pages, and set Source to GitHub Actions. Then open the URL on your phone and use Add to Home Screen (Android Chrome: Install app).
+A workflow in `.github/workflows/pages.yml` typechecks and builds the app on every push to `main` and publishes it at `https://<user>.github.io/shinycardboard/`. One-time setup: in the repo, open Settings, then Pages, and set Source to GitHub Actions. Then open the URL on your phone and use Add to Home Screen (Android Chrome: Install app).
 
 To build for a subpath by hand, set `SC_BASE=/shinycardboard/` before `npm run build`.
 
