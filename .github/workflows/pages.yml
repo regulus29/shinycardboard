@@ -32,8 +32,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run typecheck
-      # Some web tests read the real catalog, so build it before testing
-      - run: npm run build:catalog
+      # The catalog is committed because the card data API blocks cloud runners
       - run: npm test
       - run: npm run build
       # Pages serves 404.html for unknown paths, so deep links reach the single page app

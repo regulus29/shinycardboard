@@ -21,7 +21,7 @@ npm run build:catalog
 npm run dev
 ```
 
-`build:catalog` pulls the card data from the Riftcodex API (cached in `data/raw/`, add `--refresh` to refetch) and writes `apps/web/public/catalog.json`. It fails if any existing printing key would disappear without an alias, so a data refresh can never orphan your collection.
+`build:catalog` pulls the card data from the Riftcodex API (cached in `data/raw/`, add `--refresh` to refetch) and writes `apps/web/public/catalog.json`, which is committed so the Pages workflow can build without calling the API (it blocks cloud runners). Rerun it locally and commit the result to refresh card data. It fails if any existing printing key would disappear without an alias, so a data refresh can never orphan your collection.
 
 To sync devices, run the sync server somewhere your devices can reach over HTTPS, then enter its URL and token in Settings. See `docs/sync-server.md`.
 
@@ -31,7 +31,7 @@ SYNC_TOKEN=<a long random secret> npm run sync
 
 ## Hosting on GitHub Pages
 
-A workflow in `.github/workflows/pages.yml` builds the catalog and the app on every push to `main` and publishes it at `https://<user>.github.io/shinycardboard/`. One-time setup: in the repo, open Settings, then Pages, and set Source to GitHub Actions. Then open the URL on your phone and use Add to Home Screen (Android Chrome: Install app).
+A workflow in `.github/workflows/pages.yml` tests and builds the app on every push to `main` and publishes it at `https://<user>.github.io/shinycardboard/`. One-time setup: in the repo, open Settings, then Pages, and set Source to GitHub Actions. Then open the URL on your phone and use Add to Home Screen (Android Chrome: Install app).
 
 To build for a subpath by hand, set `SC_BASE=/shinycardboard/` before `npm run build`.
 
