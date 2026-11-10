@@ -239,6 +239,9 @@
       'topbar'
       'main'
       'tabbar';
+    /* Anything the shell does not cover blends into the tab bar instead of showing as a black band */
+    background: var(--bg-app);
+
     /* Pin to the screen edges: 100dvh can stop short of the home indicator on iOS when launched from the home screen */
     position: fixed;
     inset: 0 0 auto 0;

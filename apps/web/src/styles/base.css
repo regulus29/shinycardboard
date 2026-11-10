@@ -255,3 +255,10 @@ h1,
 .page__title {
   font-variant-numeric: lining-nums;
 }
+
+/* Phones: the area under the tab bar matches the bar, so a short launch viewport reads as bar padding */
+@media (max-width: 47.99rem) {
+  html {
+    background: var(--bg-surface);
+  }
+}
