@@ -239,6 +239,10 @@
       'topbar'
       'main'
       'tabbar';
+    /* Pin to the screen edges: 100dvh can stop short of the home indicator on iOS when launched from the home screen */
+    position: fixed;
+    inset: 0;
+    height: auto;
   }
 
   .sidebar {
