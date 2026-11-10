@@ -191,8 +191,8 @@
   min-height: var(--topbar-h);
   padding: calc(var(--space-2) + var(--safe-top)) calc(var(--space-5) + var(--safe-right)) var(--space-2) var(--space-5);
   border-bottom: 1px solid var(--border);
-  background: color-mix(in srgb, var(--bg-app) 86%, transparent);
-  backdrop-filter: blur(12px);
+  /* Opaque: a translucent bar blurs scrolling content under the iOS status bar */
+  background: var(--bg-app);
 }
 
 .topbar__brand {
@@ -269,10 +269,10 @@
     grid-area: tabbar;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    padding: var(--space-1) var(--safe-right) var(--safe-bottom) var(--safe-left);
+    /* Half the home indicator inset: the full inset leaves a wide empty band under the labels */
+    padding: var(--space-1) var(--safe-right) calc(var(--safe-bottom) * 0.5) var(--safe-left);
     border-top: 1px solid var(--border);
-    background: color-mix(in srgb, var(--bg-surface) 94%, transparent);
-    backdrop-filter: blur(12px);
+    background: var(--bg-surface);
   }
 
   .tabbar__item {
@@ -281,7 +281,7 @@
     align-items: center;
     justify-content: center;
     gap: 2px;
-    min-height: var(--tabbar-h);
+    min-height: calc(var(--tabbar-h) - 0.5rem);
     border-radius: var(--radius-md);
     color: var(--text-faint);
     font-size: var(--text-2xs);

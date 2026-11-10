@@ -13,11 +13,13 @@ interface BuildablePanelProps {
   hasCollection: boolean;
   onStart: (legendKey: string) => void;
   onBrowse: () => void;
+  /** Legends to list; defaults to the compact count. */
+  limit?: number;
 }
 
 /** Ranks legends by how much of a full deck the collection already covers. */
-export function BuildablePanel({ catalog, readiness, hasCollection, onStart, onBrowse }: BuildablePanelProps) {
-  const top = rankReadiness(readiness).slice(0, BUILDABLE_TOP);
+export function BuildablePanel({ catalog, readiness, hasCollection, onStart, onBrowse, limit = BUILDABLE_TOP }: BuildablePanelProps) {
+  const top = rankReadiness(readiness).slice(0, limit);
   return (
     <section className="dk-panel dk-buildable" aria-labelledby="dk-buildable-title">
       <header className="dk-panel__head">
@@ -30,6 +32,8 @@ export function BuildablePanel({ catalog, readiness, hasCollection, onStart, onB
       </header>
       {!hasCollection ? (
         <p className="dk-muted">Add cards to your collection and the legends you are closest to finishing will show up here.</p>
+      ) : top.length === 0 ? (
+        <p className="dk-muted">Every legend you can build from has a deck already. Use All legends to start a different one.</p>
       ) : (
         <ol className="dk-buildable__list">
           {top.map((entry, index) => {

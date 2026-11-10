@@ -7,6 +7,7 @@ A personal, game-first collection and deck-building app for the Riftbound tradin
 - Search that understands release titles and card numbers in any form: `unleashed 29`, `ogn 42`, `OGN-042`, `042/298`, `unl 29a`, plus names with typos, attributes (`fury unit energy>=3`), rules text, keywords, variants (`alt art`, `signature`, `metal`), ownership (`owned:yes`) and your own tags (`tag:"aggro"`)
 - One universal collection with grid and table views, grouping, sorting, filters, tags, bulk tagging, saved searches, set completion tracking and a card detail view with art, all printings, owned copies and the decks that use a card
 - CSV import with a preview (this app's format and TCGplayer exports), CSV and JSON backup export, deck list text import and export
+- Decks page shows only your own decks as portrait legend cards with legality, completion and a win-loss record you log from the card menu or the builder. A separate Discover tab suggests what to build, hiding legends you already have a deck for unless a spare legend copy and spare cards can fill another
 - Legend-first deck builder with live rules validation, owned-only and all-cards modes, missing cards list, cross-deck allocation warnings, stats, fill-from-collection and what-to-buy suggestions, a legend readiness ranking ("what can I build?"), and a sample hand with mulligan
 - Offline-capable installable PWA with a bundled font and cached card art
 - Simple sync between devices through a small self-hosted server

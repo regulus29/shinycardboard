@@ -70,18 +70,18 @@ describe('decks page', () => {
     await saveDeck({ name: 'Slow', legendKey: 'jinx-legend' });
     const user = userEvent.setup();
     renderAt('/decks');
-    expect(await screen.findByRole('link', { name: 'Open Burn' })).toBeInTheDocument();
+    expect(await screen.findByRole('link', { name: 'Burn' })).toBeInTheDocument();
     await user.type(screen.getByRole('searchbox', { name: 'Search decks' }), 'aggro');
-    expect(screen.queryByRole('link', { name: 'Open Slow' })).not.toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Open Burn' })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Slow' })).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Burn' })).toBeInTheDocument();
   });
 
   it('ranks legends from the collection and starts a deck from one', async () => {
     await ownFuryPool();
     await saveDeck({ name: 'Existing' });
     const user = userEvent.setup();
-    renderAt('/decks');
-    const panel = await screen.findByRole('complementary', { name: 'Collection suggestions' });
+    renderAt('/decks?tab=discover');
+    const panel = await screen.findByRole('region', { name: 'What can I build?' });
     const start = await within(panel).findByRole('button', { name: 'Start from Vi, Piltover Enforcer' });
     await user.click(start);
     await waitFor(async () => expect((await db.decks.toArray()).some((d) => d.legendKey === 'vi-legend')).toBe(true), SAVE_WAIT);
@@ -105,16 +105,41 @@ describe('decks page', () => {
     expect(deck?.main.find((s) => s.cardKey === 'fury-unit-1')?.count).toBe(3);
   });
 
+  it('logs wins and losses from the deck menu and shows the record', async () => {
+    await saveDeck({ name: 'Record', legendKey: 'vi-legend' });
+    const user = userEvent.setup();
+    renderAt('/decks');
+    expect(await screen.findByText('No games yet')).toBeInTheDocument();
+    await user.click(await screen.findByRole('button', { name: 'Actions for Record' }));
+    await user.click(await screen.findByRole('menuitem', { name: 'Log a win' }));
+    expect(await screen.findByText('1-0 (100%)')).toBeInTheDocument();
+    await user.click(await screen.findByRole('button', { name: 'Actions for Record' }));
+    await user.click(await screen.findByRole('menuitem', { name: 'Log a loss' }));
+    expect(await screen.findByText('1-1 (50%)')).toBeInTheDocument();
+    const undos = await screen.findAllByRole('button', { name: 'Undo' });
+    await user.click(undos[undos.length - 1]!);
+    expect(await screen.findByText('1-0 (100%)')).toBeInTheDocument();
+  });
+
+  it('keeps suggestions off the deck list', async () => {
+    await ownFuryPool();
+    await saveDeck({ name: 'Existing' });
+    renderAt('/decks');
+    await screen.findByRole('link', { name: 'Existing' });
+    expect(screen.queryByRole('region', { name: 'What can I build?' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('region', { name: 'Start here' })).not.toBeInTheDocument();
+  });
+
   it('deletes a deck and offers undo', async () => {
     await saveDeck({ name: 'Doomed', legendKey: 'vi-legend' });
     const user = userEvent.setup();
     renderAt('/decks');
     await user.click(await screen.findByRole('button', { name: 'Actions for Doomed' }));
     await user.click(await screen.findByRole('menuitem', { name: 'Delete' }));
-    await waitFor(() => expect(screen.queryByRole('link', { name: 'Open Doomed' })).not.toBeInTheDocument());
+    await waitFor(() => expect(screen.queryByRole('link', { name: 'Doomed' })).not.toBeInTheDocument());
     expect((await db.decks.toArray()).every((d) => d.deleted)).toBe(true);
     await user.click(await screen.findByRole('button', { name: 'Undo' }));
-    expect(await screen.findByRole('link', { name: 'Open Doomed' })).toBeInTheDocument();
+    expect(await screen.findByRole('link', { name: 'Doomed' })).toBeInTheDocument();
     expect((await db.decks.toArray()).every((d) => !d.deleted)).toBe(true);
   });
 });

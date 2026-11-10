@@ -20,6 +20,7 @@ export const SYNC_CONFIG = {
 export const RECORD_LIMITS = {
   maxQuantity: 9999,
   maxDeckSlotCount: 99,
+  maxGameCount: 99_999,
   maxStringLength: 5000,
   maxKeyLength: 200,
   maxTagCount: 200,

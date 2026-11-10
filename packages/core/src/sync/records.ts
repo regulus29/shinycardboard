@@ -35,6 +35,10 @@ function count(record: Obj, key: string, path: string, min: number, max: number)
     : `${path}.${key} must be a whole number from ${min} to ${max}`;
 }
 
+function optionalCount(record: Obj, key: string, path: string, max: number): string | null {
+  return record[key] === undefined ? null : count(record, key, path, 0, max);
+}
+
 const firstProblem = (...checks: (string | null)[]): string | null => checks.find((c) => c !== null) ?? null;
 
 const checkOwned: RecordCheck = (r, p) =>
@@ -78,6 +82,8 @@ const checkDeck: RecordCheck = (r, p) =>
     stringField(r, 'chosenChampionKey', p, maxKeyLength, true),
     stringField(r, 'notes', p, maxStringLength, true),
     stringList(r, 'tags', p, true),
+    optionalCount(r, 'wins', p, RECORD_LIMITS.maxGameCount),
+    optionalCount(r, 'losses', p, RECORD_LIMITS.maxGameCount),
     ...SLOT_LISTS.map((key) => checkSlotList(r, key, p)),
   );
 
