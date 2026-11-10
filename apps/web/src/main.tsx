@@ -3,9 +3,6 @@ import { createRoot } from 'react-dom/client';
 import './styles/tokens.css';
 import './styles/base.css';
 import { App } from './app/App';
-import { watchStandaloneHeight } from './app/standaloneHeight';
-
-watchStandaloneHeight();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
