@@ -73,6 +73,17 @@ Each push is checked against `SYNC_MAX_RECORDS_PER_COLLECTION` and `SYNC_MAX_STA
 
 Back up the whole data directory, `state.json` included. To restore an old `state.json`, stop the server, put the file back, and start once with `SYNC_REGENERATE_SERVER_ID=1`. The server then issues a new `serverId`, saves it, and logs a `server_id_regenerated` event. Every device sees a different `serverId` and resyncs by pushing its full local state. Records the restored server had deleted after the backup can therefore reappear from a device that still holds them. Start without the flag afterwards: the new id is kept across restarts.
 
+## Homelab with Tailscale
+
+The web app is served over HTTPS from GitHub Pages, and browsers block plain HTTP requests from an HTTPS page, so the server needs an HTTPS URL. Tailscale Serve provides one with a real certificate and keeps the server off the public internet. Every device that syncs needs the Tailscale app signed in to the same tailnet.
+
+1. On the homelab host, create `apps/sync/.env` with `SYNC_TOKEN=<output of openssl rand -hex 24>`. The `SYNC_ALLOW_ORIGIN` default is the Pages origin `https://regulus29.github.io`.
+2. Start it from the repo root: `docker compose -f apps/sync/compose.yaml up -d --build`. Data lives in the `sync-data` volume, so include it in your backups.
+3. Publish it on the tailnet: `tailscale serve --bg 8787`. Enable HTTPS certificates in the Tailscale admin console first if prompted.
+4. Check `https://<host>.<tailnet>.ts.net/health` from your phone, then enter that URL and the token under Settings, Sync in the app.
+
+Use `tailscale serve`, not `tailscale funnel`, so only your own devices can reach it.
+
 ## Deploy behind HTTPS
 
 The server speaks plain HTTP and the bearer token travels in a header, so always put it behind a TLS terminating reverse proxy. Keep `HOST=127.0.0.1` and let the proxy reach it locally.

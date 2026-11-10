@@ -1,0 +1,18 @@
+# Run from the repo root: docker compose -f apps/sync/compose.yaml up -d --build
+# Put SYNC_TOKEN (and optionally SYNC_ALLOW_ORIGIN) in a .env file beside this one.
+services:
+  sync:
+    build:
+      context: ../..
+      dockerfile: apps/sync/Dockerfile
+    restart: unless-stopped
+    environment:
+      SYNC_TOKEN: ${SYNC_TOKEN:?set SYNC_TOKEN in apps/sync/.env}
+      SYNC_ALLOW_ORIGIN: ${SYNC_ALLOW_ORIGIN:-https://regulus29.github.io}
+    ports:
+      # Loopback only: Tailscale Serve terminates HTTPS and forwards here
+      - "127.0.0.1:8787:8787"
+    volumes:
+      - sync-data:/data
+volumes:
+  sync-data:

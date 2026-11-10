@@ -24,7 +24,7 @@ npm run dev
 
 `build:catalog` pulls the card data from the Riftcodex API (cached in `data/raw/`, add `--refresh` to refetch) and writes `apps/web/public/catalog.json`, which is committed so the Pages workflow can build without calling the API (it blocks cloud runners). Rerun it locally and commit the result to refresh card data. It fails if any existing printing key would disappear without an alias, so a data refresh can never orphan your collection.
 
-To sync devices, run the sync server somewhere your devices can reach over HTTPS, then enter its URL and token in Settings. See `docs/sync-server.md`.
+To sync devices, run the sync server somewhere your devices can reach over HTTPS, then enter its URL and token in Settings. See `docs/sync-server.md`, which includes a Docker and Tailscale setup for a homelab.
 
 ```bash
 SYNC_TOKEN=<a long random secret> npm run sync
