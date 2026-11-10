@@ -218,24 +218,6 @@
 }
 
 /* ---------- Decks page ---------- */
-.dk-decks-layout {
-  display: grid;
-  gap: var(--space-5);
-  grid-template-columns: minmax(0, 1fr);
-  align-items: start;
-}
-
-@media (min-width: 72rem) {
-  .dk-decks-layout {
-    grid-template-columns: minmax(0, 1fr) 22rem;
-  }
-
-  .dk-decks-side {
-    position: sticky;
-    top: var(--space-4);
-  }
-}
-
 .dk-toolbar {
   display: flex;
   flex-wrap: wrap;
@@ -250,7 +232,7 @@
 
 .dk-deck-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
   gap: var(--space-4);
   margin: 0;
   padding: 0;
@@ -259,69 +241,34 @@
 
 .dk-deckcard {
   position: relative;
-  overflow: hidden;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  background: var(--bg-surface);
-  box-shadow: var(--shadow-1);
-  transition:
-    border-color var(--dur-fast) var(--ease-out),
-    box-shadow var(--dur) var(--ease-out),
-    transform var(--dur) var(--ease-out);
+  min-width: 0;
 }
 
-.dk-deckcard:hover {
-  border-color: var(--border-strong);
-  box-shadow: var(--shadow-2);
-  transform: translateY(-2px);
-}
-
-.dk-deckcard__link {
-  display: block;
-  color: inherit;
-  text-decoration: none;
-}
-
-.dk-deckcard__link:focus-visible {
-  outline: 2px solid transparent;
-  box-shadow: var(--focus-ring);
-  border-radius: var(--radius-lg);
-}
-
-.dk-deckcard__art {
-  aspect-ratio: 21 / 9;
-}
-
-.dk-deckcard__body {
+.dk-deckcard__foot {
   display: grid;
+  gap: var(--space-1);
+  width: 100%;
+  justify-items: center;
+  text-align: center;
+}
+
+.dk-deckcard__status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
   gap: var(--space-2);
-  padding: var(--space-4);
 }
 
-.dk-deckcard__name {
-  font-size: var(--text-md);
-  font-weight: var(--weight-semibold);
-  overflow-wrap: anywhere;
-}
-
-.dk-deckcard__legend,
-.dk-deckcard__counts,
-.dk-deckcard__time {
+.dk-deckcard__percent,
+.dk-deckcard__record {
   color: var(--text-muted);
   font-size: var(--text-xs);
 }
 
-.dk-deckcard__row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-2);
-}
-
-.dk-deckcard__tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-1);
+.dk-deckcard__record {
+  font-weight: var(--weight-semibold);
+  color: var(--text);
 }
 
 .dk-deckcard__menu {
@@ -1743,4 +1690,21 @@
   .dk-pool__controls--row {
     flex-wrap: wrap;
   }
+}
+
+.dk-discover {
+  display: grid;
+  gap: var(--space-5);
+  max-width: 44rem;
+}
+
+.dk-list-tabs {
+  margin-bottom: var(--space-4);
+}
+
+.dk-record__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
 }

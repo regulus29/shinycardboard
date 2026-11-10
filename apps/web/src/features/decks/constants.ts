@@ -22,6 +22,14 @@ export const POOL_PAGE_SIZE = 36;
 export const ENERGY_BUCKET_MAX = 6;
 /** Legends listed in the What can I build panel. */
 export const BUILDABLE_TOP = 4;
+/** Legends listed on the Discover tab. */
+export const DISCOVER_LIST_LIMIT = 12;
+/** Deck list tabs. */
+export const DECK_TABS = [
+  { value: 'mine', label: 'My decks' },
+  { value: 'discover', label: 'Discover' },
+] as const;
+export type DeckTab = (typeof DECK_TABS)[number]['value'];
 export const BUYABLE_PREVIEW_LIMIT = 40;
 
 export const CHAMPION_SELECT_ID = 'dk-champion-select';

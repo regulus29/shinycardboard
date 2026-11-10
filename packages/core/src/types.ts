@@ -142,6 +142,9 @@ export interface Deck extends SyncRecord {
   sideboard: DeckSlot[];
   notes?: string;
   tags?: string[];
+  /** Games won and lost with this deck, logged by hand. Absent means none logged. */
+  wins?: number;
+  losses?: number;
 }
 
 export interface SavedSearch extends SyncRecord {

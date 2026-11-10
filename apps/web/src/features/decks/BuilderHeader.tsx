@@ -1,7 +1,7 @@
 import { useEffect, useState, type KeyboardEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { paths } from '../../app/paths';
-import { Badge, Button, Chip, Drawer, Icon, IconButton, Menu, Select, TextField } from '../../ui';
+import { Badge, Button, Chip, Drawer, Icon, IconButton, Menu, Select, Stepper, TextField } from '../../ui';
 import type { SaveStatus } from './autosave';
 import { useBuilder } from './builderContext';
 import { CHAMPION_SELECT_ID, FOCUS_CHAMPION_EVENT, MAX_DECK_NAME_LENGTH, MAX_TAGS_PER_DECK, MAX_TAG_LENGTH, SECTION_SHORT } from './constants';
@@ -9,6 +9,7 @@ import { championChoices, chooseChampion, effectiveChampion, withValidChampion }
 import { addTagTo } from './deckPatch';
 import { validity } from './insightsModel';
 import { DomainRow } from './LegendArt';
+import { recordLabel } from './recordModel';
 import { RulesPopover } from './RulesPopover';
 
 const SAVE_TEXT: Record<SaveStatus, string> = {
@@ -69,6 +70,22 @@ function TagEditor() {
   );
 }
 
+/** Win and loss counters for games played with this deck. */
+function RecordEditor() {
+  const { deck, edit } = useBuilder();
+  return (
+    <div className="dk-record">
+      <span className="dk-label">Record: {recordLabel(deck)}</span>
+      <div className="dk-record__row">
+        <Stepper size="sm" label="Wins" value={deck.wins ?? 0} onChange={(wins) => edit((d) => ({ ...d, wins }))} />
+        <span className="dk-muted">Wins</span>
+        <Stepper size="sm" label="Losses" value={deck.losses ?? 0} onChange={(losses) => edit((d) => ({ ...d, losses }))} />
+        <span className="dk-muted">Losses</span>
+      </div>
+    </div>
+  );
+}
+
 function NotesAndTags() {
   const { deck, edit } = useBuilder();
   return (
@@ -78,6 +95,7 @@ function NotesAndTags() {
       </label>
       <textarea id="dk-notes" className="dk-textarea" rows={3} value={deck.notes ?? ''} onChange={(event) => edit((d) => ({ ...d, notes: event.target.value }))} placeholder="Game plan, sideboard plans, upgrades to buy" />
       <TagEditor />
+      <RecordEditor />
     </div>
   );
 }
